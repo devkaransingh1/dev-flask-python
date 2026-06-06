@@ -1,0 +1,9 @@
+{
+  "editor.quickSuggestions": false,
+  "editor.suggestOnTriggerCharacters": false,
+  "editor.tabCompletion": "off",
+  "editor.inlineSuggest.enabled": false,
+  "[python]": {
+    "editor.quickSuggestions": false
+  }
+}
