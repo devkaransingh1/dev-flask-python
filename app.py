@@ -1,33 +1,23 @@
-from flask import Flask, Response , request , url_for , redirect , session
+from flask import Flask , request , Response ,session, url_for, redirect , render_template
 
 app = Flask(__name__)
-app.secret_key = "supersecret"
+app.secret_key="supersecret"
 
-@app.route("/login",methods=["GET","POST"])
+@app.route("/")
 def login():
+    return render_template("login.html")
 
-    if request.method=="POST":
-        userchoice = request.form.get("choice")
-        if userchoice=="login":
-            return redirect(url_for("loginpage"))
-        else:
-            return "invalid choice try again"
-    return '''
-          <form method="POST">
-    <h2>Selection for login or just view</h2>
-
-    <input
-        type="text"
-        placeholder="Enter here"
-        name="choice"
-    >
-
-    <button type="submit">Submit</button>
-</form>
-
-'''
-
-
-@app.route("/loginpage")
-def loginpage():
-    return "this is the login page"
+@app.route("/submit", methods=["POST"])
+def submit():
+    username=request.form.get("username")
+    password=request.form.get("password")
+    valid_users={
+        'rajat':'tonystark',
+        'krishna':'098',
+        'tisha':'1234'
+    }
+    if username in valid_users and password==valid_users[username ]:
+        return render_template("welcome.html",name=username)
+    else:
+        return "wrong credentials try again!"
+    
