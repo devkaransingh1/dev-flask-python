@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}after feedback{% endblock %}
+
+{% block content %}
+    <h1>Thank You for Your Feedback!</h1>
+
+    <h2>Your Details</h2>
+
+    <p><strong>Name:</strong> {{ name }}</p>
+
+    <p><strong>Feedback:</strong></p>
+    <p>{{ feedback }}</p>
+    <a href="/feedback">submit another feedback</a>
+    <br>
+    <a href="/welcome">click to go to home page</a>
+{% endblock %}

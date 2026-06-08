@@ -1,11 +1,24 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <title>Welcome</title>
-  </head>
-  <body>
-    <h1>Welcome</h1>
-    <p>Login successfull {{name}}</p>
-    <a href="/">click to logout </a>
-  </body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}welcome page{% endblock %}
+
+{% block content %}
+
+<h1>Welcome</h1>
+    <p>Login successfull {{session["username"]}}</p>
+    {% if is_topper %}
+    <p>{{session["username"]}} is a topper</p>
+    {% else %}
+    <p>{{session["username"]}} need to work hard!</p>
+    {% endif %}
+
+    <p>your subjects</p>
+    <ul>
+      {% for subject in subjects %}
+      <li>{{subject}}</li>
+      {% endfor %}
+    </ul>
+<a href="/feedback">click to enter feedback</a>
+<a href="/">click to logout </a>
+
+{% endblock %}
