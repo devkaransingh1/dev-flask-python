@@ -9,8 +9,8 @@ tasks_bp = Blueprint('tasks',__name__)
 def view_tasks():
     if 'user' not in session:
         return redirect(url_for('auth.login'))
-    
-    tasks = Task.query.all()
+    user_id = session['user']
+    tasks = Task.query.filter_by(user_id=user_id).all()
     return render_template('tasks.html',tasks=tasks)
 
 
@@ -21,7 +21,7 @@ def add_task():
      
     title = request.form.get('title')
     if title:
-        new_task = Task(title=title, status='pending')
+        new_task = Task(title=title, status='pending',user_id=session['user'])
         db.session.add(new_task)
         db.session.commit()
         flash('task added successfully','success')
@@ -45,7 +45,12 @@ def toggle_status(task_id):
 
 @tasks_bp.route('/clear',methods=["POST"])
 def clear_tasks():
-    Task.query.delete()
+    
+    print("LOGGED USER ID:", session.get('user'))
+    tasks = Task.query.filter_by(user_id=session['user']).all()
+    print("TASKS TO DELETE:", tasks)
+
+    Task.query.filter_by(user_id=session['user']).delete()
     db.session.commit()
     flash("all tasks cleared","info")
     return redirect(url_for('tasks.view_tasks')  )

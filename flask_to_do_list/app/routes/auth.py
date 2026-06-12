@@ -24,15 +24,9 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        print("Entered username:", username)
-        print("Entered password:", password)
-        users = Users.query.all()
-        for u in users:
-            print("DB:", u.username, u.password)
-            
         user = Users.query.filter_by(username=username,password=password).first()
         if user:
-            session['user'] = user.username
+            session['user'] = user.id
             flash('login successful', 'success')
             return redirect(url_for('tasks.view_tasks'))
         else:
