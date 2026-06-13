@@ -26,14 +26,14 @@ def login():
         password = request.form.get('password')
         user = Users.query.filter_by(username=username,password=password).first()
         if user:
-            session['user'] = user.id
+            session['user_id'] = user.id
             flash('login successful', 'success')
             return redirect(url_for('tasks.view_tasks'))
         else:
             flash('invalid username or password', 'danger')
 
     # If already logged in, redirect to tasks
-    if 'user' in session:
+    if 'user_id' in session:
         return redirect(url_for('tasks.view_tasks'))
 
     return render_template('login.html')
@@ -42,7 +42,8 @@ def login():
 
 @auth_bp.route('/logout')
 def logout():
-    session.pop('user',None)
+    session.pop('user_id',None)
     flash('logged out','info')
     return redirect(url_for('auth.login'))
-         
+
+
