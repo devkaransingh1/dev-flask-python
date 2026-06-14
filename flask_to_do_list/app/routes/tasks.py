@@ -5,7 +5,7 @@ from app.models import Task, Users
 
 tasks_bp = Blueprint('tasks',__name__)
 
-@tasks_bp.route('/')
+@tasks_bp.route('/tasks')
 def view_tasks():
     if 'user_id' not in session:
         return redirect(url_for('auth.login'))

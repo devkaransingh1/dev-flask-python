@@ -4,47 +4,240 @@
 
 {% block content %}
 
-<div class="task-box">
-    <h1>Hello {{passedusername if passedusername else guest}}</h1>
-    <h2>Your Tasks</h2>
-    <form action="{{ url_for('tasks.add_task') }}" method="post" class="task-form">
-        <input type="text" name="title" placeholder="New Task" required>
-        <button type="submit">Add</button>
-    </form>
+<style>
+:root {
+  --bg: #f4f6fb;
+  --card: #ffffff;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --primary: #4f46e5;
+  --primary-dark: #4338ca;
+  --border: #d1d5db;
+  --danger: #ef4444;
+}
+.page-container {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 2rem 1rem 3rem;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+.task-panel {
+  background: var(--card);
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.08);
+  border-radius: 1.5rem;
+  overflow: hidden;
+}
+.panel-header {
+  padding: 2rem 2rem 1.5rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+.page-label {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+.page-title {
+  margin: 0;
+  font-size: clamp(2rem, 2.5vw, 3rem);
+  line-height: 1.05;
+}
+.page-subtitle {
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+  max-width: 54ch;
+  line-height: 1.7;
+}
+.panel-body {
+  padding: 1.75rem 2rem 2rem;
+}
+.task-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+.task-form input {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.95rem 1.2rem;
+  background: #f8fafc;
+  font-size: 1rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.task-form input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
+}
+.task-form button {
+  border: none;
+  border-radius: 999px;
+  padding: 0.95rem 1.15rem;
+  cursor: pointer;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  background: var(--primary);
+  color: white;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+.task-form button:hover {
+  transform: translateY(-1px);
+  background: var(--primary-dark);
+}
+.task-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.2rem;
+}
+.task-actions .btn {
+  border-radius: 999px;
+  padding: 0.75rem 1rem;
+  background: #eef2ff;
+  color: var(--primary);
+  border: none;
+  cursor: pointer;
+}
+.task-actions .btn:hover {
+  background: #e0e7ff;
+}
+.task-table-wrap {
+  overflow-x: auto;
+}
+.task-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 560px;
+  background: white;
+}
+.task-table th,
+.task-table td {
+  padding: 1rem 1.15rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+.task-table th {
+  color: var(--muted);
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.task-table tr:hover {
+  background: #f8f9fb;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.badge.todo {
+  background: #eef2ff;
+  color: #3730a3;
+}
+.badge.in-progress {
+  background: #fef3c7;
+  color: #b45309;
+}
+.badge.done {
+  background: #dcfce7;
+  color: #166534;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.75rem 1rem;
+  border: 1px solid transparent;
+  font-size: 0.95rem;
+}
+.btn-tertiary {
+  background: #f3f4f6;
+  color: var(--text);
+}
+.btn-tertiary:hover {
+  background: #e5e7eb;
+}
+.btn-small {
+  font-size: 0.85rem;
+  padding: 0.6rem 0.85rem;
+}
+.empty-state {
+  text-align: center;
+  padding: 2rem 1rem;
+  border: 1px dashed rgba(15, 23, 42, 0.15);
+  border-radius: 1rem;
+  background: #fafbff;
+  color: var(--muted);
+}
+</style>
 
-    {% if tasks %}
-    <form action="{{url_for('tasks.clear_tasks')}}" method="post">
-        <button type="submit" class="btn btn-clear">Clear all tasks</button>
-    </form>
+<main class="page-container">
+    <section class="task-panel card">
+        <header class="panel-header">
+            <div>
+                <p class="page-label">Tasks</p>
+                <h1 class="page-title">Hello {{ passedusername if passedusername else guest }}</h1>
+                <p class="page-subtitle">Manage your to-do list with a clean, modern view.</p>
+            </div>
+        </header>
 
-    <br>
-    <table class="task-table">
-        <thead>
-            <tr>
-                <th>Task</th>
-                <th>Status</th>
-                <th>Change</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for task in tasks %}
-            <tr>
-                <td>{{ task.title }}</td>
-                <td>
-                    <span class="badge {{ task.status|lower }}">{{ task.status }}</span>
-                </td>
-                <td>
-                    <form action="{{ url_for('tasks.toggle_status', task_id=task.id) }}" method="post">
-                        <button type="submit" class="btn-small">Next</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p>No tasks yet. Add one above.</p>
-    {% endif %}
-</div>
+        <div class="panel-body">
+            <form action="{{ url_for('tasks.add_task') }}" method="post" class="task-form task-form-inline">
+                <label class="sr-only" for="task-title">New Task</label>
+                <input id="task-title" type="text" name="title" placeholder="Add a new task" required>
+                <button type="submit" class="btn btn-primary">Add</button>
+            </form>
+
+            {% if tasks %}
+            <div class="task-actions">
+                <form action="{{ url_for('tasks.clear_tasks') }}" method="post">
+                    <button type="submit" class="btn btn-secondary btn-sm">Clear all tasks</button>
+                </form>
+            </div>
+
+            <div class="task-table-wrap">
+                <table class="task-table">
+                    <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>Status</th>
+                            <th>Change</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for task in tasks %}
+                        <tr>
+                            <td>{{ task.title }}</td>
+                            <td>
+                                <span class="badge {{ task.status|lower }}">{{ task.status }}</span>
+                            </td>
+                            <td>
+                                <form action="{{ url_for('tasks.toggle_status', task_id=task.id) }}" method="post">
+                                    <button type="submit" class="btn btn-tertiary btn-small">Next</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>No tasks yet. Add one above.</p>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+</main>
 
 {% endblock %}
